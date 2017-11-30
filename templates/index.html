@@ -1,0 +1,13 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Crud Application with Node.js & Koa</title>
+  </head>
+  <body>
+    {{#each records}}
+      <p>Name: {{name}}, Body: {{body}} (<a href="/edit">edit</a> | <a href="/delete">delete</a>)</p>
+    {{/each}}
+    <a href="/new">new</a>
+  </body>
+</html>

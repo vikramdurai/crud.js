@@ -1,0 +1,10 @@
+{
+  "name": "node-crud",
+  "description": "A simple Create-Read-Update-Delete application written in Node.js",
+  "dependencies": [
+    "koa",
+    "handlebars",
+    "lowdb",
+    "koa-bodyparser",
+  ]
+}
