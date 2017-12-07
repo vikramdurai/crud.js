@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Crud Application with Node.js & Koa</title>
+  </head>
+  <body>
+    <form action="/update/{{rec.name}}" method="post">
+      <em>Name:</em>
+      <input type="text" value="{{rec.name}}" name="name"><br>
+      <em>Body:</em>
+      <input type="text" value="{{rec.body}}" name="body"><br>
+      <button type="submit">Submit</button>
+    </form>
+  </body>
+</html>

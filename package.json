@@ -3,8 +3,9 @@
   "description": "A simple Create-Read-Update-Delete application written in Node.js",
   "dependencies": [
     "koa",
-    "handlebars",
-    "lowdb",
+    "koa-router",
     "koa-bodyparser",
+    "handlebars",
+    "lowdb"
   ]
 }

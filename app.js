@@ -1,70 +1,75 @@
-const Koa = require("koa")
-const Handlebars = require("handlebars")
-const low = require("lowdb")
-const fs = require("fs")
-const bodyParser = require("koa-bodyparser")
-const FileSync = require("lowdb/adapters/FileSync")
+var Koa = require("koa")
+var Router = require("koa-router")
+var BodyParser = require("koa-bodyparser")
+var Handlebars = require("handlebars")
+var Lowdb = require("lowdb")
+var FileSync = require("lowdb/adapters/FileSync")
+var fs = require("fs")
 
-const app = new Koa()
-const adapter = new FileSync("database.json")
-const db = low(adapter)
+var adapter = new FileSync("database.json")
+var db = Lowdb(adapter)
+var app = new Koa()
+var router = new Router()
 
 db.defaults({ records: [] })
   .write()
 
-app.use(bodyParser())
-
-
-newFun = (fn) => {
-  return (async ctx => {
-    fn(ctx)
+router
+  .get("/", async (ctx, next) => {
+    var records = db.get("records").value()
+    var template = Handlebars.compile(fs.readFileSync("templates/index.html",
+    "utf8"))
+    ctx.body = template({
+      "records": records
+    })
   })
-}
-
-indexHandler = ctx => {
-  var tmpl = fs.readFileSync("templates/index.html", "utf8")
-  var rec = db.get("posts")
-    .filter()
-    .value()
-  var template = Handlebars.compile(tmpl)
-  res = template({
-    "records": rec
+  .get("/new", async (ctx, next) => {
+    var template = fs.readFileSync("templates/new.html", "utf8")
+    ctx.body = template
   })
-  ctx.body = res
-}
-
-newHandler = ctx => {
-  var tmpl = fs.readFileSync("templates/new.html", "utf8")
-  ctx.body = tmpl
-}
-
-createHandler = ctx => {
-  var name = ctx.request.body.name
-  var body = ctx.request.body.body
-  console.log(`Creating object with name ${name} and body ${body}`);
-  db.get("records")
-    .push({ name: name, body: body })
-    .write()
-  ctx.redirect("/")
-}
-
-const routes = [
-  {route: "/", handler: newFun(indexHandler)},
-  // {route: "/edit", handler: newFun(editHandler)},
-  // {route: "/delete", handler: newFun(deleteHandler)},
-  {route: "/new", handler: newFun(newHandler)},
-  {route: "/create", handler: newFun(createHandler)}
-]
-
-app.use(async ctx => {
-  for (var i = 0; i < routes.length; i++) {
-    if (ctx.request.path == routes[i].route) {
-      routes[i].handler(ctx)
-      return
+  .post("/create", async (ctx, next) => {
+    console.log(ctx.request.body)
+    var record = {
+      name: ctx.request.body.name,
+      body: ctx.request.body.body
     }
-  }
-  ctx.body = "<h1>Not Found</h1>"
-})
+    db.get("records")
+      .push(record)
+      .write()
+    ctx.redirect("/")
+  })
+  .get("/edit/:name", async (ctx, next) => {
+    var record = db.get("records")
+      .find({ name: ctx.params.name })
+      .value()
+    var template = Handlebars.compile(fs.readFileSync("templates/edit.html",
+    "utf8"))
 
-console.log("Starting server @ localhost:3000")
+    ctx.body = template({
+      "rec": record
+    })
+  })
+  .post("/update/:name", async (ctx, next) => {
+    var newRecord = {
+      name: ctx.request.body.name,
+      body: ctx.request.body.body
+    }
+    db.get("records")
+      .find({ name: ctx.params.name })
+      .assign(newRecord)
+      .write()
+    ctx.redirect("/")
+  })
+  .get("/delete/:name", async (ctx, next) => {
+    db.get("records")
+      .remove({ name: ctx.params.name })
+      .write()
+    ctx.redirect("/")
+  })
+
+app.use(BodyParser())
+app.use(router.routes())
+app.use(router.allowedMethods())
+
+console.log("starting server @ http://localhost:3000")
 app.listen(3000)

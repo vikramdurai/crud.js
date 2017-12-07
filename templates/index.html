@@ -6,7 +6,8 @@
   </head>
   <body>
     {{#each records}}
-      <p>Name: {{name}}, Body: {{body}} (<a href="/edit">edit</a> | <a href="/delete">delete</a>)</p>
+      <p>Name: {{name}}, Body: {{body}} (<a href="/edit/{{name}}">edit</a> |
+        <a href="/delete/{{name}}">delete</a>)</p>
     {{/each}}
     <a href="/new">new</a>
   </body>
